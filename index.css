@@ -135,8 +135,8 @@ body{
     display: flex;
     align-items: center;
 }
-.movie__item_checked{
-    text-decoration-line: line-through;
+input[type="checkbox"]:checked+label {
+	text-decoration: line-through;
     color: #adadad;
-    background-color: #2f2f2f;
+    opacity: .7;
 }
