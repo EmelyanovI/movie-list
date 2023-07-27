@@ -60,7 +60,6 @@ const loadMoviesFromStorage = () => {
     }
     render(movieList);
 };
-//loadMoviesFromStorage();
 window.addEventListener('load', loadMoviesFromStorage);//вызов из localStorage при загрузки 
 
 const createMovie = (movieName) => {//создание списка задач
@@ -89,6 +88,9 @@ const render = (movieList) => {
         movieCheckbox.className = "movie__checkbox";//чекбокс
         movieLabel.className = "movie__label";//название
         movieCloseBtn.className = "movie__close-btn";//кнопка удаления
+
+        (movie.active === true) ? movieCheckbox.checked = false:
+		movieCheckbox.checked = true
 
         movieLabel.innerText = movie.title;
 
@@ -143,7 +145,6 @@ const activeCheckbox = (e) => {// активация чекбокса
     if (e.target.classList.contains('movie__checkbox') ||
         e.target.classList.contains('movie__box')) {
         const movieItem = e.target.closest('.movie__item');
-        movieItem.classList.toggle(CHECKED_CLASS_NAME);
         
         const movieId = movieItem.dataset.id;
         const movieIndex = movieList.findIndex(movie => movie.id === movieId);
@@ -154,6 +155,11 @@ const activeCheckbox = (e) => {// активация чекбокса
     saveMoviesToStorage();
 };
 
+if(Array.isArray(movieList)) {}
+const init = () => {
+	render(movieList);
+}
+init();
 //Слушатель событий
 addBtnNode.addEventListener('click', addBtnHandler);
 moviesListNode.addEventListener('click', activeCheckbox);
