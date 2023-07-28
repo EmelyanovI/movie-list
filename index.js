@@ -1,12 +1,12 @@
 const TITLE_LENGTH_LIMIT = 30;
-const MIN_TITLE_LENGTH_LIMIT = 0;
+const MIN_TITLE_LENGTH_LIMIT = 1;
 
 const inputNode = document.querySelector('.form__input');//поле ввода
 const addBtnNode = document.querySelector('.movie__add-btn');//кнопка добавить
 const moviesListNode = document.querySelector('.movies__list');//список фильмов
 
 const CHECKED_CLASS_NAME = 'movie__item_checked';//пометка для чека фильма
-const STORAGE_LABEL_TASKS = 'moviesList'; //пометка для сохранение в локальное хранилище
+const STORAGE_LABEL_MOVIES = 'moviesList'; //пометка для сохранение в локальное хранилище
 
 let movieList = [];//массив с задачими
 const storageNode = localStorage;
@@ -14,45 +14,28 @@ const storageNode = localStorage;
 //Функции
 
 const getMovieName = () => {//функция получения задачи
-    const input = inputNode.value;
+    const input = inputNode.value.trim();
     return input;
 };
-
 const clearInput = () => {//функция очистки инпута
     inputNode.value = "";
 };
-
 inputNode.addEventListener('input', () => {//проверка колличества символов
     validationInput();
 });
-
-validationInput = () => {
-    const inputLen = inputNode.value.trim().length;
-    if (inputLen != 0 || inputLen > MIN_TITLE_LENGTH_LIMIT) {
-        if (inputLen <= MIN_TITLE_LENGTH_LIMIT) {
-            addBtnNode.disabled = true;
-            return;
-        }
-        if (inputLen > TITLE_LENGTH_LIMIT) {
-            addBtnNode.disabled = true;
-            return;
-        } else {
-            addBtnNode.disabled = false;
-        }
-    } else {
-        addBtnNode.disabled = true;//отключение кнопки добавления если поле ввода пустое
-    };
+const validationInput = () => {
+    const inputLen = getMovieName().length;
+    addBtnNode.disabled = !(inputLen >= MIN_TITLE_LENGTH_LIMIT && inputLen <= TITLE_LENGTH_LIMIT);
 };
-
 const deleteMoviesFromStorage = () => {
-    storageNode.removeItem(STORAGE_LABEL_TASKS);
+    storageNode.removeItem(STORAGE_LABEL_MOVIES);
 };
 const saveMoviesToStorage = () => {//сохранение в LocalStorage
     const movieListStorage = JSON.stringify(movieList);
-    storageNode.setItem(STORAGE_LABEL_TASKS, movieListStorage);
+    storageNode.setItem(STORAGE_LABEL_MOVIES, movieListStorage);
 };
 const loadMoviesFromStorage = () => {
-    const movieListStorage = storageNode.getItem(STORAGE_LABEL_TASKS);
+    const movieListStorage = storageNode.getItem(STORAGE_LABEL_MOVIES);
     if (movieListStorage) {
         movieList = JSON.parse(movieListStorage); 
     } else {
@@ -61,7 +44,6 @@ const loadMoviesFromStorage = () => {
     render(movieList);
 };
 window.addEventListener('load', loadMoviesFromStorage);//вызов из localStorage при загрузки 
-
 const createMovie = (movieName) => {//создание списка задач
     const movie = { 
         title: movieName,
@@ -73,7 +55,6 @@ const createMovie = (movieName) => {//создание списка задач
     render(movieList);
     return movie;
 };
-
 const render = (movieList) => {
     moviesListNode.innerHTML = "";
     movieList.forEach((movie) => {//массив задач
@@ -89,9 +70,6 @@ const render = (movieList) => {
         movieLabel.className = "movie__label";//название
         movieCloseBtn.className = "movie__close-btn";//кнопка удаления
 
-        (movie.active === true) ? movieCheckbox.checked = false:
-		movieCheckbox.checked = true
-
         movieLabel.innerText = movie.title;
 
         movieItem.dataset.id = movie.id;
@@ -99,6 +77,8 @@ const render = (movieList) => {
         movieCheckbox.setAttribute("type", "checkbox");
         movieLabel.setAttribute("for", `${movieCheckbox.id}`);
         movieCloseBtn.dataset.id = movie.id;
+        (movie.active === true) ? movieCheckbox.checked = false:
+		movieCheckbox.checked = true
 
         moviesListNode.appendChild(movieItem);
         movieItem.appendChild(movieBox);
@@ -109,7 +89,6 @@ const render = (movieList) => {
         movieCloseBtn.addEventListener("click", () => {
         const id = movieItem.dataset.id;
         CloseMovie(movieList, id);
-        deleteMoviesFromStorage();
         });
     });
 };
@@ -129,9 +108,7 @@ const CloseMovie = (movieList, id) => {
       deleteMoviesFromStorage();
     }
 };
-  
 //Обработчик событий
-
 const addBtnHandler = () => {
     const movieName = getMovieName();
     clearInput();
@@ -140,12 +117,11 @@ const addBtnHandler = () => {
     render(movieList);
     saveMoviesToStorage();
 };
-
-const activeCheckbox = (e) => {// активация чекбокса
-    if (e.target.classList.contains('movie__checkbox') ||
-        e.target.classList.contains('movie__box')) {
-        const movieItem = e.target.closest('.movie__item');
-        
+const activeCheckbox = (event) => {// активация чекбокса
+    const target = event.target
+    if (target.classList.contains('movie__checkbox') ||
+        target.classList.contains('movie__box')) {
+        const movieItem = target.closest('.movie__item');
         const movieId = movieItem.dataset.id;
         const movieIndex = movieList.findIndex(movie => movie.id === movieId);
         if (movieIndex !== -1) {
@@ -154,7 +130,6 @@ const activeCheckbox = (e) => {// активация чекбокса
     }
     saveMoviesToStorage();
 };
-
 if(Array.isArray(movieList)) {}
 const init = () => {
 	render(movieList);
